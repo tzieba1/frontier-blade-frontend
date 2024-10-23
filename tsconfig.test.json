@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",  // Inherit from the main tsconfig
+  "compilerOptions": {
+    "baseUrl": ".",  // Ensure base URL is correct
+    "paths": {
+      "@/*": ["src/*"]  // Alias for src folder
+    },
+    "types": ["vitest/globals", "@testing-library/jest-dom"],  // Include Vitest and jest-dom types
+    "lib": ["ES2020", "DOM"],  // Ensure DOM and ES2020 libs are included
+    "moduleResolution": "Node",  // Use Node module resolution for tests
+    "esModuleInterop": true,  // Required for jest-dom and other test libraries
+    "isolatedModules": false,  // Disable isolated modules for tests
+    "noEmit": true  // No emit for test files
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "test/**/*.tsx", "test/**/*.vue"],
+  "exclude": ["node_modules"]
+}
