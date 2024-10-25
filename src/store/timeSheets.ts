@@ -2,16 +2,14 @@
 import { Module } from 'vuex';
 import { RootState } from './types';
 import { TimeSheetsState, TimeSheet } from './types';
+import { mockTimeSheets } from '@/mocks/timesheets';
+
+const timeSheets = [...mockTimeSheets];
 
 export const timeSheetsModule: Module<TimeSheetsState, RootState> = {
   namespaced: true,
   state: {
-    timeSheets: [
-      { id: 1, employeeName: 'Jaden Nelson', dateRange: 'Oct 7-13', hoursWorked: 40 },
-      { id: 2, employeeName: 'Remington Meekins', dateRange: 'Oct 7-13', hoursWorked: 35 },
-      { id: 3, employeeName: 'Ben Christink', dateRange: 'Oct 7-13', hoursWorked: 42 },
-      { id: 4, employeeName: 'Ryan Kipfer', dateRange: 'Oct 7-13', hoursWorked: 38 },
-    ],
+    timeSheets: timeSheets,
   },
   getters: {
     timeSheets: (state) => state.timeSheets,

@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { login } from '@/services/authService';
+import { mockUsers } from '@/mocks/users';
 
 describe('authService', () => {
   it('logs in with valid credentials', async () => {
-    const user = await login('admin@test.ca', '');
-    expect(user).toEqual({ username: 'admin@test.ca', role: 'admin' });
+    const user = await login(mockUsers[0].username, '');
+    expect(user).toEqual(mockUsers[0]);
   });
 
   it('throws an error with invalid credentials', async () => {
