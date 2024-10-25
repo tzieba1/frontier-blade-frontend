@@ -30,6 +30,7 @@ export interface Employee {
 }
 
 export interface TimeSheet {
+  [key: string]: any; 
   id: number;
   employeeId: number;
   approverId: number | null;
@@ -47,6 +48,7 @@ export interface TimeSheet {
 }
 
 export interface TimeSheetEntry {
+  [key: string]: any; 
   id: number;
   timeSheetId: number;
   date: Date;
@@ -60,6 +62,7 @@ export interface TimeSheetEntry {
 }
 
 export interface BillableFields {
+  [key: string]: any; 
   rate1ST: number | null;
   rate1OT: number | null;
   rate2ST: number | null;
@@ -70,17 +73,20 @@ export interface BillableFields {
 }
 
 export interface NonBillableFields {
+  [key: string]: any; 
   rate2ST: number | null;
   rate2OT: number | null;
   comments?: string; // Optional because it may not be used in totals
 }
 
 export interface AdditionalQualifierFields {
+  [key: string]: any; 
   perDiem: number | null;
   dayOrNight: number | null;
 }
 
 export interface TimeSheetTotals {
+  [key: string]: any; 
   nonBillable: NonBillableFields; 
   billable: BillableFields; 
   additionalQualifiers: AdditionalQualifierFields;
