@@ -12,6 +12,6 @@
     "isolatedModules": false,  // Disable isolated modules for tests
     "noEmit": true  // No emit for test files
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "test/**/*.tsx", "test/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "test/**/*.tsx", "test/**/*.vue", "vuex.d.ts"],
   "exclude": ["node_modules"]
 }
