@@ -1,22 +1,17 @@
-import { createStore } from 'vuex';
+import { createStore, Store, useStore as baseUseStore } from 'vuex';
 
-export const store = createStore({
-  state: {
-    role: '',
-    isAuthenticated: false,
-  },
-  mutations: {
-    login(state, payload) {
-      state.role = payload.role;
-      state.isAuthenticated = true;
-    },
-    logout(state) {
-      state.role = '';
-      state.isAuthenticated = false;
-    }
-  },
-  getters: {
-    role: state => state.role,
-    isAuthenticated: state => state.isAuthenticated,
+import { authModule } from '@/store/auth';
+import { timeSheetsModule } from '@/store/timeSheets';
+import { RootState } from './types';
+
+
+export function useStore(): Store<RootState> {
+  return baseUseStore();
+}
+
+export const store = createStore<RootState>({
+  modules: {
+    auth: authModule,
+    timeSheets: timeSheetsModule,
   }
 });

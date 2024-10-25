@@ -17,7 +17,7 @@ export function login(username: string, password: string): Promise<User> {
       const user = Object.values(mockUsers).find(u => u.username === username);
 
       // Check if the user exists and if the password is correct (you can extend this logic)
-      if (user && password === 'password') {  // Assume 'password' as the correct password for now
+      if (user && password === '') {  // Assume 'password' as the correct password for now
         resolve(user);
       } else {
         reject(new Error('Invalid credentials'));

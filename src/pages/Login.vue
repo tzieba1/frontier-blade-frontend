@@ -18,29 +18,33 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { login } from '@/services/authService';
 
-// Form state
 const username = ref('');
 const password = ref('');
 const error = ref('');
 const loading = ref(false);
 
-// Router
+const store = useStore();
 const router = useRouter();
 
 const handleLogin = async () => {
   error.value = '';
   loading.value = true;
-  
+
   try {
     const user = await login(username.value, password.value);
-    // Navigate based on role
+
+    // First, commit the role to Vuex store
+    store.commit('auth/login', { role: user.role });
+
+    // Next, navigate to the appropriate route
     if (user.role === 'admin' || user.role === 'accountant') {
       router.push('/dashboard');
     } else if (user.role === 'employee') {
-      router.push('/timesheet');
+      router.push('/timesheets');
     }
   } catch (err: any) {
     error.value = err.message;

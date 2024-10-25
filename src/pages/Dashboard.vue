@@ -5,16 +5,17 @@
 
     <!-- Placeholder for future features -->
     <div>
-      <h2>Manage Teams</h2>
-      <p>This section will allow accountants to create teams and manage employees.</p>
+      <!-- Conditionally display TeamManagement for admins -->
+      <TeamManagement />
 
       <h2>Manage Timesheets</h2>
-      <p>This section will allow admins/accountants to view, filter, and export timesheets.</p>
+      <p>This section will allow admins/accountants to view, filter, and export TimeSheets.</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import TeamManagement from '@/components/TeamManagement.vue';
 </script>
 
 <style scoped>
