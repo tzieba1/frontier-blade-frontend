@@ -1,17 +1,27 @@
 <template>
   <div>
-    <h1>TimeSheet Details for {{ timeSheet.employeeName }}</h1>
+    <h1>TimeSheet Details</h1>
+    <h2>{{ timeSheet.employee.user.firstName }} {{ timeSheet.employee.user.lastName }} (Employee #{{
+      timeSheet.employee.number }})
+      <span>
 
-    <button @click="toggleEditMode">
-      {{ isEditing ? "Cancel" : "Edit" }}
-    </button>
+        <!-- Button to add a new entry -->
+        <button class="add-button" @click="addEntry">Add Entry</button>
+
+        <!-- Edit button to toggle edit mode -->
+        <button class="edit-button" @click="toggleEditMode">
+          {{ isEditing ? "Save" : "Edit" }}
+        </button>
+      </span>
+    </h2>
+
+    <hr />
 
     <!-- Non-entry fields displayed above the table -->
     <div class="timesheet-details">
-      <p><strong>Date Range:</strong> {{ timeSheet.dateRange }}</p>
-      <p><strong>Hours Worked:</strong> {{ timeSheet.hoursWorked }}</p>
+      <p><strong>Week Of:</strong> {{ timeSheet.weekOf.toLocaleDateString() }}</p>
       <p><strong>Comments:</strong> {{ timeSheet.comments }}</p>
-      <p><strong>Approval Status:</strong> {{ timeSheet.isApproved ? "Approved" : "Pending" }}</p>
+      <p><strong>Approval Status:</strong> {{ approvalStatus }}</p>
     </div>
 
     <!-- Transposed Table Structure for TimeSheet Entries with Totals Column -->
@@ -96,26 +106,20 @@
           @update="(payload) => updateEntry(payload.index, 'billable.holiday', payload.updatedEntry)" />
 
         <!-- Additional Qualifiers Per Diem Row -->
-         <TimeSheetRow fieldLabel="Per Diem" :fieldKey="'additionalQualifiers.perDiem'" :entries="editedTimeSheet.entries"
-          :isEditing="isEditing" :validationErrors="validationErrors"
+        <TimeSheetRow fieldLabel="Per Diem" :fieldKey="'additionalQualifiers.perDiem'"
+          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
           @update="(payload) => updateEntry(payload.index, 'additionalQualifiers.perDiem', payload.updatedEntry)" />
 
         <!-- Additional Qualifiers Day or Night Row -->
-        <TimeSheetRow fieldLabel="Day or Night" :fieldKey="'additionalQualifiers.dayOrNight'" :entries="editedTimeSheet.entries"
-          :isEditing="isEditing" :validationErrors="validationErrors"
+        <TimeSheetRow fieldLabel="Day or Night" :fieldKey="'additionalQualifiers.dayOrNight'"
+          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
           @update="(payload) => updateEntry(payload.index, 'additionalQualifiers.dayOrNight', payload.updatedEntry)" />
       </tbody>
     </table>
 
-    <!-- Button to add a new entry -->
-    <button class="add-button" @click="addEntry">Add Entry</button>
-
-    <!-- Save button for editing -->
-    <button class="save-button" v-if="isEditing" @click="saveChanges">Save</button>
-
     <router-link to="/timesheets" v-slot="{ href, navigate, isActive, isExactActive }">
       <a :href="href" @click="navigate" :class="{ active: isActive, exactActive: isExactActive }"
-        class="fbs-style-link">
+        class="back-link">
         Back to TimeSheets
       </a>
     </router-link>
@@ -130,6 +134,7 @@ import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import TextEntryModal from '@/components/TextEntryModal.vue';
 import TimeSheetRow from '@/components/TimeSheetRow.vue';
+import { Approval } from '@/store/types';
 
 const store = useStore();
 const route = useRoute();
@@ -197,14 +202,9 @@ const toggleEditMode = () => {
   isEditing.value = !isEditing.value;
   if (isEditing.value) {
     editedTimeSheet.value = { ...timeSheet.value };
+  } else {
+    saveChanges();
   }
-};
-
-const openModal = (field: string, index: number) => {
-  modalField.value = field;
-  modalIndex.value = index;
-  modalText.value = editedTimeSheet.value.entries[index][field];
-  isModalVisible.value = true;
 };
 
 const updateField = (newText: string) => {
@@ -241,6 +241,18 @@ const addEntry = () => {
   editedTimeSheet.value.entries.push(newEntry);
 };
 
+const approvalStatus = computed(() => {
+  const approvals = timeSheet.value.approvals;
+
+  if (approvals.length === 0) {
+    return "Pending";
+  }
+
+  const latestApproval = approvals.slice().sort((a: Approval, b: Approval) => new Date(b.approvalDate).getTime() - new Date(a.approvalDate).getTime())[0];
+
+  return latestApproval.isApproved ? "Approved" : "Denied";
+});
+
 // Watch for changes in timeSheet to keep editedTimeSheet in sync
 watch(timeSheet, (newVal) => {
   if (!isEditing.value) {
@@ -250,22 +262,60 @@ watch(timeSheet, (newVal) => {
 </script>
 
 <style scoped>
+h1 {
+  background-color: #3573b7;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+h2 {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .timesheet-table {
   margin: auto;
   width: 100%;
-  border-collapse: collapse;
+  border-spacing: 0;
+  border-color: #c1c1c1;
+  border-radius: 8px;
+  /* Adjust the radius as needed */
+  overflow: hidden;
+  /* Ensures that corners are clipped */
 }
 
 .timesheet-table th {
-  border: 1px solid #333;
-  padding: 8px;
   text-align: left;
+  padding: 8px;
+  border: 1px solid #333;
+  border-top-color: #3573b7;
+  border-bottom-color: #3573b7;
   background-color: #3573b7;
 }
 
-.add-button,
-.save-button {
+.timesheet-table th:first-child {
+  border-left-color: #3573b7;
+  border-top-left-radius: 8px;
+}
+
+.timesheet-table th:last-child {
+  border-right-color: #3573b7;
+  border-top-right-radius: 8px;
+}
+
+.edit-button,
+.add-button {
+  font-size: 1rem;
   padding: 8px;
   margin: 8px;
 }
+
+.back-link {
+  display: inline-block;
+  margin-top: 16px;
+}
+
 </style>

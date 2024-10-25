@@ -1,18 +1,13 @@
 import { TimeSheet } from "@/store/types";
+import { mockEmployees } from "./employees";
+import { mockApprovals } from "./approvals";
 
 export const mockTimeSheets: TimeSheet[] = [{
   id: 1,
-  approverId: null,
-  employeeId: 101,
-  employeeName: 'Jaden Nelson',
-  employeeNumber: 1001,
-  employeeType: 'full-time',
-  dateRange: 'Oct 7-13',
+  approvals: [mockApprovals[0]],
+  employee: mockEmployees[0],
   weekOf: new Date('2024-10-07'),
-  hoursWorked: 40,
-  comments: 'Completed tasks on time',
-  isApproved: false,
-  approvalDate: null,
+  comments: '',
   entries: [
     {
       id: 1,
@@ -64,17 +59,10 @@ export const mockTimeSheets: TimeSheet[] = [{
 },
 {
   id: 2,
-  approverId: null,
-  employeeId: 102,
-  employeeName: 'Alexis Johnson',
-  employeeNumber: 1002,
-  employeeType: 'part-time',
-  dateRange: 'Oct 7-13',
+  approvals: [],
+  employee: mockEmployees[1],
   weekOf: new Date('2024-10-07'),
-  hoursWorked: 20,
   comments: 'Completed tasks on time',
-  isApproved: false,
-  approvalDate: null,
   entries: [
     {
       id: 1,

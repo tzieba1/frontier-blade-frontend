@@ -11,7 +11,7 @@ export interface AuthState {
 export interface User {
   id: number;
   email: string;
-  username: string | null;
+  username: string;
   firstName: string;
   lastName: string;
   role: "admin" | "accountant" | "employee";
@@ -27,22 +27,24 @@ export interface Employee {
   id: number;
   user: User;
   number: number;
+  type: "full-time" | "part-time" | "casual";
+}
+
+export interface Approval {
+  id: number;
+  timeSheetId: number;
+  approver: User;
+  isApproved: boolean;
+  approvalDate: Date;
 }
 
 export interface TimeSheet {
   [key: string]: any; 
   id: number;
-  employeeId: number;
-  approverId: number | null;
-  employeeName: string;
-  employeeNumber: number;
-  employeeType: "full-time" | "part-time" | "casual";
-  dateRange: string;
+  approvals: Approval[];
+  employee: Employee;
   weekOf: Date;
-  hoursWorked: number;
   comments: string;
-  isApproved: boolean;
-  approvalDate: Date | null;
   entries: TimeSheetEntry[];
   totals: TimeSheetTotals;
 }
@@ -63,26 +65,26 @@ export interface TimeSheetEntry {
 
 export interface BillableFields {
   [key: string]: any; 
-  rate1ST: number | null;
-  rate1OT: number | null;
-  rate2ST: number | null;
-  rate2OT: number | null;
-  vacation: number | null;
-  sick: number | null;
-  holiday: number | null;
+  rate1ST: number;
+  rate1OT: number;
+  rate2ST: number;
+  rate2OT: number;
+  vacation: number;
+  sick: number;
+  holiday: number;
 }
 
 export interface NonBillableFields {
   [key: string]: any; 
-  rate2ST: number | null;
-  rate2OT: number | null;
+  rate2ST: number;
+  rate2OT: number;
   comments?: string; // Optional because it may not be used in totals
 }
 
 export interface AdditionalQualifierFields {
   [key: string]: any; 
-  perDiem: number | null;
-  dayOrNight: number | null;
+  perDiem: number;
+  dayOrNight: number;
 }
 
 export interface TimeSheetTotals {

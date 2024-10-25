@@ -1,56 +1,39 @@
 <template>
   <tr>
-    <td class="table-data-heading"><span>{{ fieldLabel }}</span></td>
+    <td class="table-data-heading"><span :title="fieldLabel">{{ fieldLabel }}</span></td>
 
     <!-- Data Columns for Each Entry -->
     <td v-for="(entry, index) in entries" :key="index" class="table-data-field">
       <!-- Display value when not editing -->
-      <template v-if="!isEditing"><span>{{ displayValue(entry) }}</span></template>
+      <template v-if="!isEditing"><span :title="displayValue(entry)">{{ displayValue(entry) }}</span></template>
 
       <!-- Editable field when editing -->
       <template v-else>
         <div class="input-container">
           <!-- Date Input -->
-          <input
-            v-if="getNestedFieldValue(entry, fieldKey) instanceof Date"
-            type="date"
+          <input v-if="getNestedFieldValue(entry, fieldKey) instanceof Date" type="date"
             :value="getNestedFieldValue(entry, fieldKey)"
-            @input="(event) => updateFieldValue(index, (event.target as HTMLInputElement).value)"
-          />
+            @input="(event) => updateFieldValue(index, (event.target as HTMLInputElement).value)" />
 
           <!-- Numeric Input -->
-          <input
-            v-else-if="typeof getNestedFieldValue(entry, fieldKey) === 'number'"
-            type="number"
+          <input v-else-if="typeof getNestedFieldValue(entry, fieldKey) === 'number'" type="number"
             :value="getNestedFieldValue(entry, fieldKey)"
-            @input="(event) => updateFieldValue(index, parseFloat((event.target as HTMLInputElement).value))"
-          />
+            @input="(event) => updateFieldValue(index, parseFloat((event.target as HTMLInputElement).value))" />
 
           <!-- Text Input -->
-          <input
-            v-else
-            type="text"
-            :value="getNestedFieldValue(entry, fieldKey)"
-            @input="(event) => updateFieldValue(index, (event.target as HTMLInputElement).value)"
-          />
+          <input v-else type="text" :value="getNestedFieldValue(entry, fieldKey)"
+            @input="(event) => updateFieldValue(index, (event.target as HTMLInputElement).value)" />
 
           <button
             v-if="!(getNestedFieldValue(entry, fieldKey) instanceof Date || typeof getNestedFieldValue(entry, fieldKey) === 'number')"
-            class="expand-button"
-            @click="toggleModal"
-            aria-label="Expand for detailed entry"
-          >
+            class="expand-button" @click="toggleModal" aria-label="Expand for detailed entry">
             🔍
           </button>
         </div>
 
-        <TextEntryModal
-          v-if="showModal"
-          :initialText="getNestedFieldValue(entry, fieldKey)?.toString() || ''"
-          :isVisible="showModal"
-          @update:text="(newText) => updateFieldValue(index, newText)"
-          @close="showModal = false"
-        />
+        <TextEntryModal v-if="showModal" :initialText="getNestedFieldValue(entry, fieldKey)?.toString() || ''"
+          :isVisible="showModal" @update:text="(newText) => updateFieldValue(index, newText)"
+          @close="showModal = false" />
       </template>
     </td>
 
@@ -58,8 +41,13 @@
     <td class="totals-column">{{ calculateTotal }}</td>
 
     <!-- Validation column -->
-    <td>
-      <span v-if="validationError" class="error">{{ validationError }}</span>
+    <td class="error">
+      <template v-if="validationError">
+        <span>❌ {{ validationError }}</span>
+      </template>
+      <template v-else>
+        <span>✅</span>
+      </template>
     </td>
   </tr>
 </template>
@@ -141,18 +129,30 @@ const validationError = computed(() => {
   white-space: nowrap;
 }
 
+.table-data-field {
+  min-width:175px;
+  height: 1.67rem;
+  text-overflow: ellipsis;
+}
+
 .table-data-field, 
 .error {
   white-space: nowrap;
   overflow: scroll;
-  text-overflow: ellipsis;
-  max-width: 200px; /* Adjust as needed for your layout */
+  max-width: 175px; /* Adjust as needed for current cell layout */
 }
 
-.table-data-field span,
 .error span {
-  display: block; /* Ensures the ellipsis applies */
-  max-width: 100%;
+  display: inline-block;
+  margin: auto;
+}
+
+table tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+    
+table tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
 }
 td {
   border: 1px solid #666;
@@ -179,7 +179,9 @@ td {
   font-size: 1.2em;
 }
 .error {
-  color: red;
+  color: #bf0e0e;
   font-size: 0.9em;
+  text-align: center;
+  overflow: scroll;
 }
 </style>
