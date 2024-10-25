@@ -3,7 +3,7 @@
     <div class="modal-content">
       <textarea v-model="text" rows="10" cols="50"></textarea>
       <div class="button-container">
-        <button @click="saveText">Save</button>
+        <button @click="confirmText">Confirm</button>
         <button @click="closeModal">Cancel</button>
       </div>
     </div>
@@ -25,7 +25,7 @@ watch(() => props.initialText, (newText) => {
   text.value = newText;
 });
 
-const saveText = () => {
+const confirmText = () => {
   emits('update:text', text.value);
   emits('close');
 };
