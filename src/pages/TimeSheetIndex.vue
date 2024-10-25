@@ -85,13 +85,4 @@ tr:hover {
 button {
   margin-top: 20px;
 }
-
-.fbs-style-link {
-  color: #1a77ba;
-  text-decoration: none;
-}
-
-.fbs-style-link:hover {
-  text-decoration: underline;
-}
 </style>
