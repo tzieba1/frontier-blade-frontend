@@ -1,4 +1,3 @@
-<!-- src/components/TextEntryModal.vue -->
 <template>
   <div v-if="isVisible" class="modal-overlay">
     <div class="modal-content">
@@ -12,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits, watch } from 'vue';
 
 const props = defineProps({
   initialText: String,
@@ -21,6 +20,10 @@ const props = defineProps({
 
 const emits = defineEmits(['update:text', 'close']);
 const text = ref(props.initialText);
+
+watch(() => props.initialText, (newText) => {
+  text.value = newText;
+});
 
 const saveText = () => {
   emits('update:text', text.value);
