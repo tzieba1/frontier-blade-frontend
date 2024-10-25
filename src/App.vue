@@ -55,8 +55,9 @@ watch(
 
 <style scoped>
 nav {
-  background-color: #333;
+  background-color: #c1c1c1;
   padding: 10px;
+  border-radius: 8px;
 }
 
 nav ul {
@@ -86,7 +87,7 @@ nav ul li a, nav ul li button {
   text-decoration: none;
   padding: 10px 15px;
   border-radius: 5px;
-  background-color: #555;
+  background-color: #333;
   transition: background-color 0.3s ease;
   font-size: 16px; /* Ensure consistent font size */
   line-height: 1.2; /* Use a fixed line-height to handle descenders */
