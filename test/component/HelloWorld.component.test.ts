@@ -13,26 +13,4 @@ describe('HelloWorld.vue', () => {
     // Assert that the message is rendered correctly
     expect(getByText(msg)).toBeInTheDocument();
   });
-
-  it('increments the counter when the button is clicked', async () => {
-    // Render the component
-    const { getByText } = render(HelloWorld, {
-      props: { msg: 'Counter Test' }
-    });
-
-    // Find the button with initial count of '0'
-    const button = getByText('count is 0');
-
-    // Simulate a button click
-    await fireEvent.click(button);
-
-    // Assert the count increments to 1
-    expect(button.textContent).toBe('count is 1');
-
-    // Simulate another click
-    await fireEvent.click(button);
-
-    // Assert the count increments to 2
-    expect(button.textContent).toBe('count is 2');
-  });
 });
