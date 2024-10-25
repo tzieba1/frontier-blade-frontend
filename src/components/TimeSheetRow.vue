@@ -155,65 +155,14 @@ const validationError = computed(() => {
   max-width: 100%;
 }
 td {
-  border: 1px solid #ddd;
+  border: 1px solid #666;
   padding: 8px;
   text-align: left;
 }
 .totals-column {
   text-align: center;
   font-weight: bold;
-  background-color: #f7f7f7;
-  color: #333;
-}
-.input-container {
-  display: flex;
-  align-items: center;
-}
-.expand-button {
-  padding: 0;
-  margin-left: 8px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 1.2em;
-}
-.error {
-  color: red;
-  font-size: 0.9em;
-}
-</style>
-
-
-<style scoped>
-/* Style .table-data-field to not wrap and be the length of the largest text */
-.table-data-heading {
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.table-data-field, 
-.error {
-  white-space: nowrap;
-  overflow: scroll;
-  text-overflow: ellipsis;
-  max-width: 200px; /* Adjust as needed for your layout */
-}
-
-.table-data-field span,
-.error span {
-  display: block; /* Ensures the ellipsis applies */
-  max-width: 100%;
-}
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-.totals-column {
-  text-align: center;
-  font-weight: bold;
-  background-color: #f7f7f7;
+  background-color: #c1c1c1;
   color: #333;
 }
 .input-container {

@@ -119,20 +119,7 @@
         Back to TimeSheets
       </a>
     </router-link>
-
   </div>
-
-  <!-- Other layout and entry fields here -->
-  <div v-for="(entry, index) in editedTimeSheet.entries" :key="entry.id" class="table-column">
-    <div @click="openModal('shopComments', index)">
-      {{ entry.shopComments }}
-    </div>
-    <div @click="openModal('suggestedSalesPart', index)">
-      {{ entry.suggestedSalesPart }}
-    </div>
-    <!-- Other fields here -->
-  </div>
-
   <TextEntryModal v-if="isModalVisible" :initialText="modalText" :isVisible="isModalVisible" @update:text="updateField"
     @close="closeModal" />
 </template>
@@ -254,23 +241,6 @@ const addEntry = () => {
   editedTimeSheet.value.entries.push(newEntry);
 };
 
-// `calculateTotal` computes totals for fields specified by `fieldName` (like `nonBillable.rate2ST`)
-function calculateTotal(fieldName: string): number {
-  return editedTimeSheet.value.entries.reduce((acc: number, entry: any) => {
-    const value = getFieldValue(entry, fieldName);
-    return acc + (typeof value === 'number' ? value : 0); // Only add if the value is a number
-  }, 0);
-}
-
-// Helper function to get nested field values
-function getFieldValue<T extends Record<string, any>>(entry: T, fieldName: string): any {
-  return fieldName.split('.').reduce((obj, key) => obj?.[key], entry);
-}
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString();
-};
-
 // Watch for changes in timeSheet to keep editedTimeSheet in sync
 watch(timeSheet, (newVal) => {
   if (!isEditing.value) {
@@ -286,11 +256,11 @@ watch(timeSheet, (newVal) => {
   border-collapse: collapse;
 }
 
-.timesheet-table th,
-.timesheet-table td {
-  border: 1px solid #ddd;
+.timesheet-table th {
+  border: 1px solid #333;
   padding: 8px;
   text-align: left;
+  background-color: #3573b7;
 }
 
 .add-button,

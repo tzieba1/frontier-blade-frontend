@@ -2,7 +2,7 @@
 import { Module } from 'vuex';
 import { RootState } from './types';
 import { TimeSheetsState, TimeSheet } from './types';
-import { mockTimeSheets } from '@/mocks/timesheets';
+import { mockTimeSheets } from '@/mocks/timeSheets';
 
 const timeSheets = [...mockTimeSheets];
 
