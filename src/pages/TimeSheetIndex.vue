@@ -24,7 +24,7 @@
       <tbody>
         <tr v-for="timeSheet in filteredAndSortedTimeSheets" :key="timeSheet.id">
           <td>{{ timeSheet.employee.user.username }}</td>
-          <td>{{ timeSheet.weekOf.toLocaleDateString() }}</td>
+            <td>{{ new Date(timeSheet.weekOf).toISOString().split('T')[0]}}</td>
           <td>
             <!-- Use :to to pass the id as a route param to TimeSheetDetails -->
             <router-link :to="{ name: 'TimeSheetDetails', params: { id: timeSheet.id } }" v-slot="{ href, navigate, isActive, isExactActive }">
