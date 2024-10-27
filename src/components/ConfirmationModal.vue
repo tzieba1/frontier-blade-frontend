@@ -54,7 +54,7 @@ const closeModal = () => {
   justify-content: center;
 }
 .modal-content {
-  background: #c1c1c1;
+  background: #f5f5f5;
   color: #333;
   padding: 20px;
   border-radius: 8px;

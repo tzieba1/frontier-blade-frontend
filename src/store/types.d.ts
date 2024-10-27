@@ -3,12 +3,26 @@ import { ApprovalStatus, DayOrNight } from "./enums";
 export interface RootState {
   auth: AuthState;
   timeSheets: TimeSheetsState;
+  teams: TeamsState;
+  users: UsersState;
 }
 
 export interface AuthState {
   role: "admin" | "accountant" | "employee" | "none";
   user?: User;
   isAuthenticated: boolean;
+}
+
+export interface TimeSheetsState {
+  timeSheets: TimeSheet[];
+}
+
+export interface TeamsState {
+  teams: Team[];
+}
+
+export interface UsersState {
+  users: User[];
 }
 
 export interface User {
@@ -21,6 +35,7 @@ export interface User {
 }
 
 export interface Team {
+  [key: string]: any;
   id: number;
   name: string;
   members: Employee[];
@@ -105,8 +120,4 @@ export interface TimeSheetTotals {
   nonBillable: NonBillableFields; 
   billable: BillableFields; 
   additionalQualifiers: AdditionalQualifierFields;
-}
-
-export interface TimeSheetsState {
-  timeSheets: TimeSheet[];
 }

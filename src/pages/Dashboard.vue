@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Admin/Accountant Dashboard</h1>
+    <h1>Dashboard</h1>
     <p>Welcome to the dashboard. This page is accessible only to admins and accountants.</p>
 
     <!-- Placeholder for future features -->
@@ -20,9 +20,11 @@ import TeamManagement from '@/components/TeamManagement.vue';
 
 <style scoped>
 h1 {
-  margin-bottom: 16px;
+  background-color: #3573b7;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 16px 0;
 }
-
 h2 {
   margin-top: 24px;
 }
