@@ -1,11 +1,7 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click="closeModal()">
     <div class="modal-content" @click.stop>
-      <h2>Filtering Options
-        <span>
-          <button class="filter-button" @click="applyFilters()">Filter ᗊ</button>
-        </span>
-      </h2>
+      <h2>Filtering Options</h2>
 
       <!-- Filters Section -->
       <div class="filter-section">
@@ -41,16 +37,17 @@
           <label for="endDate">End Date:</label>
           <input type="date" v-model="localFilters.endDate" id="endDate" />
         </div>
+
+        <div class="button-container">
+          <a href="#" @click.prevent="resetFilters()">Reset Filters</a>
+          <button class="filter-button" @click="applyFilters()">Filter ᗊ</button>
+        </div>
       </div>
 
       <hr />
 
       <!-- Sorting Section -->
-      <h2>Sorting Options
-        <span>
-          <button class="sort-button" @click="applySorting()">Sort 🗂️</button>
-        </span>
-      </h2>
+      <h2>Sorting Options</h2>
       <div class="sort-section">
         <div class="sort-group">
           <label for="sortField">Sort by:</label>
@@ -69,15 +66,14 @@
             <option value="desc">Descending</option>
           </select>
         </div>
+        <div class="button-container">
+          <a href="#" @click.prevent="resetSorting()">Reset Sorting</a>
+          <button class="sort-button" @click="applySorting()">Sort 🗂️</button>
+        </div>
       </div>
 
       <hr />
-      <!-- Modal Buttons -->
-      <div class="button-container">
-        <a href="#" @click.prevent="resetFilters()">Reset Filters</a>
-        <a href="#" @click.prevent="resetSorting()">Reset Sorting</a>
-        <button class="cancel-button" @click="closeModal()">Cancel ↩️</button>
-      </div>
+      <button class="cancel-button" @click="closeModal()">Cancel ↩️</button>
     </div>
   </div>
 </template>
@@ -208,6 +204,16 @@ h2 {
 .cancel-button {
   font-size: 1rem;
   padding: 8px;
-  margin: 8px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16px;
+}
+
+hr {
+  margin: 0;
 }
 </style>
