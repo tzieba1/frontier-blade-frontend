@@ -11,32 +11,54 @@
 
     <hr />
 
-    <!-- Non-entry fields displayed above the table -->
-    <div class="timesheet-details">
-      <p><strong>Week Of: </strong>
-        <span v-if="isEditing && isAdmin">
-          <input type="date" v-model="weekOfString" />
-        </span>
-        <span v-else>{{ weekOfString }}</span>
-      </p>
+    <div class="timesheet-details-container">
+      <!-- General Fields Group -->
+      <div class="general-fields-group">
+        <h3>General</h3>
+        <hr/>
+        <p><strong>Week Of: </strong>
+          <span v-if="isEditing && isAdmin">
+            <input type="date" v-model="weekOfString" />
+          </span>
+          <span v-else>{{ weekOfString }}</span>
+        </p>
 
-      <p><strong>Comments: </strong>
-        <span v-if="isEditing && isAdmin">
-          <input type="text" v-model="editedTimeSheet.comments" placeholder="Add comments" />
-        </span>
-        <span v-else>{{ timeSheet.comments }}</span>
-      </p>
+        <p><strong>Comments: </strong>
+          <span v-if="isEditing && isAdmin">
+            <input type="text" v-model="editedTimeSheet.comments" placeholder="Add comments" />
+          </span>
+          <span v-else>{{ timeSheet.comments }}</span>
+        </p>
 
-      <p><strong>Approval Status: </strong>
-        <span v-if="isEditing && isAdmin">
-          <select v-model="approvalStatus">
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Denied">Denied</option>
+        <p><strong>Approval Status: </strong>
+          <span v-if="isEditing && isAdmin">
+            <select v-model="approvalStatus">
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Denied">Denied</option>
+            </select>
+          </span>
+          <span v-else>{{ approvalStatus }}</span>
+        </p>
+      </div>
+
+      <!-- CCQ Fields Group for Admin -->
+      <div v-if="isAdmin" class="ccq-fields-group">
+        <h3>CCQ</h3>
+        <hr/>
+        <p><strong>Is Ropes: </strong>
+          <input type="checkbox" v-model="editedTimeSheet.ccq.isRopes" :disabled="!isEditing" />
+        </p>
+        <p><strong>Is Diver: </strong>
+          <input type="checkbox" v-model="editedTimeSheet.ccq.isDiver" :disabled="!isEditing" />
+        </p>
+        <p><strong>Rate: </strong>
+          <select v-model="editedTimeSheet.ccq.rate" :disabled="!isEditing">
+            <option value="hourly">Hourly</option>
+            <option value="salary">Salary</option>
           </select>
-        </span>
-        <span v-else>{{ approvalStatus }}</span>
-      </p>
+        </p>
+      </div>
     </div>
 
 
@@ -157,7 +179,8 @@
           Back to TimeSheets
         </a>
       </router-link>
-      <button class="submit-button" @click="openConfirmModal" v-if="!isEditing">Submit ✉️</button>
+      <button class="submit-button" @click="openConfirmModal" v-if="!isEditing && !isAdmin && !isAccountant">Submit
+        ✉️</button>
     </div>
   </div>
 
@@ -198,6 +221,7 @@ const timeSheet = computed(() => {
 
 // Fetch the user's role from the store
 const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
+const isAccountant = computed(() => store.getters['auth/role'] === 'accountant');
 
 // Show the edit button based on user role and timesheet status
 const showEditButton = computed(() => {
@@ -396,6 +420,11 @@ h2 {
   align-items: center;
 }
 
+h3 {
+  margin: 0;
+  text-align: left;
+}
+
 .table-heading-flex {
   display: flex;
   justify-content: space-between;
@@ -420,4 +449,40 @@ h2 {
   align-items: center;
   margin-top: 16px;
 }
+.timesheet-details-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px; /* Optional spacing below the container */
+}
+
+.general-fields-group,
+.ccq-fields-group {
+  width: 48%; /* Occupies equal width with space in between */
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 8px;
+}
+
+.general-fields-group p,
+.ccq-fields-group p {
+  display: flex;
+  justify-content: space-between;
+  width: 100%; /* Ensures full width usage within each group */
+}
+
+.general-fields-group p strong,
+.ccq-fields-group p strong {
+  margin-right: auto; /* Pushes label to the far left */
+}
+
+.general-fields-group p span,
+.general-fields-group p input,
+.general-fields-group p select,
+.ccq-fields-group p span,
+.ccq-fields-group p input,
+.ccq-fields-group p select {
+  margin-left: auto; /* Pushes input or text to the far right */
+}
+
 </style>

@@ -57,7 +57,13 @@ export const mockTimeSheets: TimeSheet[] = [
 				perDiem: 50,
 				dayOrNight: DayOrNight.Day
 			}
-		}
+		},
+    ccq: {
+      id: 1,
+      isDiver: false,
+      isRopes: false,
+      rate: 'hourly'
+    }
 	},
 	{
 		id: 2,
@@ -112,6 +118,12 @@ export const mockTimeSheets: TimeSheet[] = [
 				perDiem: 50,
 				dayOrNight: DayOrNight.Day
 			}
-		}
+		},
+    ccq: {
+      id: 2,
+      isDiver: true,
+      isRopes: false,
+      rate: 'hourly'
+    }
 	}
 ];

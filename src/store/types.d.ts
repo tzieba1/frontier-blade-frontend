@@ -50,6 +50,7 @@ export interface TimeSheet {
   comments: string;
   entries: TimeSheetEntry[];
   totals: TimeSheetTotals;
+  ccq: CCQ;
 }
 
 export interface TimeSheetEntry {
@@ -88,6 +89,14 @@ export interface AdditionalQualifierFields {
   [key: string]: any; 
   perDiem: number;
   dayOrNight: DayOrNight;
+}
+
+export interface CCQ {
+  [key: string]: any; 
+  id: number;
+  isDiver: boolean;
+  isRopes: boolean;
+  rate: "hourly" | "salary";
 }
 
 export interface TimeSheetTotals {
