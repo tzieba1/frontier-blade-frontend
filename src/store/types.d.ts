@@ -6,7 +6,8 @@ export interface RootState {
 }
 
 export interface AuthState {
-  role: string;
+  role: "admin" | "accountant" | "employee" | "none";
+  user?: User;
   isAuthenticated: boolean;
 }
 
@@ -16,7 +17,7 @@ export interface User {
   username: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "accountant" | "employee";
+  role: "admin" | "accountant" | "employee" | "none";
 }
 
 export interface Team {

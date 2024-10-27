@@ -38,7 +38,7 @@ const handleLogin = async () => {
     const user = await login(username.value, password.value);
 
     // First, commit the role to Vuex store
-    store.commit('auth/login', { role: user.role });
+    store.commit('auth/login', { role: user.role, user: user });
 
     // Next, navigate to the appropriate route
     if (user.role === 'admin' || user.role === 'accountant') {

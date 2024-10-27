@@ -65,7 +65,18 @@ const sortOptions = ref<SortOptions>({
 const filteredAndSortedTimeSheets = computed(() => {
   let timeSheets = store.getters['timeSheets/timeSheets'];
 
-  // Filter by employee name
+  const user = store.getters['auth/user'];
+  const role = store.getters['auth/role'];
+
+  // Return an empty array if no user is authenticated
+  if (user === null) return [];
+
+  // Filter timesheets based on user ID if an employee is logged in
+  if (role == 'employee') {
+    timeSheets = timeSheets.filter((ts: any) => ts.employee.user.id === user.id);
+  }
+
+  // Continue with other filters and sorting
   if (filters.value.employeeName) {
     const name = filters.value.employeeName.toLowerCase();
     timeSheets = timeSheets.filter((ts: any) =>
@@ -73,21 +84,18 @@ const filteredAndSortedTimeSheets = computed(() => {
     );
   }
 
-  // Filter by approval status
   if (filters.value.approvalStatus) {
     timeSheets = timeSheets.filter((ts: any) =>
       ts.approvals.some((approval: any) => approval.isApproved === (filters.value.approvalStatus === 'approved'))
     );
   }
 
-  // Filter by comments presence
   if (filters.value.hasComments === 'true') {
     timeSheets = timeSheets.filter((ts: any) => ts.comments && ts.comments.trim() !== '');
   } else if (filters.value.hasComments === 'false') {
     timeSheets = timeSheets.filter((ts: any) => !ts.comments || ts.comments.trim() === '');
   }
 
-  // Filter by date range
   if (filters.value.startDate) {
     timeSheets = timeSheets.filter((ts: any) =>
       new Date(ts.weekOf) >= new Date(filters.value.startDate!)
@@ -99,7 +107,6 @@ const filteredAndSortedTimeSheets = computed(() => {
     );
   }
 
-  // Apply sorting
   const { field, direction } = sortOptions.value;
   return timeSheets.sort((a: any, b: any) => {
     const valueA = field.split('.').reduce((obj, key) => obj?.[key], a);
@@ -111,6 +118,7 @@ const filteredAndSortedTimeSheets = computed(() => {
     return 0;
   });
 });
+
 
 
 
