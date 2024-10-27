@@ -3,12 +3,10 @@
     <h1>Login</h1>
     <form @submit.prevent="handleLogin">
       <div>
-        <label for="username">Username</label>
-        <input v-model="username" id="username" placeholder="Enter username" />
+        <input v-model="username" id="username" placeholder="Username" />
       </div>
       <div>
-        <label for="password">Password</label>
-        <input v-model="password" type="password" id="password" placeholder="Enter password" />
+        <input v-model="password" type="password" id="password" placeholder="Password" />
       </div>
       <button type="submit" :disabled="loading">Login</button>
       <p v-if="error">{{ error }}</p>

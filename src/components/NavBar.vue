@@ -44,6 +44,11 @@ nav {
   border-radius: 8px;
 }
 
+img {
+  margin: 0;
+  padding: 0;
+}
+
 nav ul {
   display: flex;
   justify-content: flex-start;
@@ -56,10 +61,6 @@ nav ul {
 
 li {
   margin-right: 20px;
-}
-
-li:first-child {
-  margin-left: 20px;
 }
 
 nav ul li a,
@@ -92,8 +93,4 @@ button {
   font: inherit;
 }
 
-/* apply space between logo and nav items */
-li:first-child {
-  margin-right: auto;
-}
 </style>
