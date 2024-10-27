@@ -91,4 +91,9 @@ button {
   color: inherit;
   font: inherit;
 }
+
+/* apply space between logo and nav items */
+li:first-child {
+  margin-right: auto;
+}
 </style>
