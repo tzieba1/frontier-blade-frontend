@@ -69,7 +69,7 @@ const filteredAndSortedTimeSheets = computed(() => {
   const role = store.getters['auth/role'];
 
   // Return an empty array if no user is authenticated
-  if (user === null) return [];
+  if (user === null || role === 'none') return [];
 
   // Filter timesheets based on user ID if an employee is logged in
   if (role == 'employee') {
