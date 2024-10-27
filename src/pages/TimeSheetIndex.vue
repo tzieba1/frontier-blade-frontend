@@ -1,18 +1,17 @@
 <template>
   <div>
-    <h1>TimeSheet Index</h1>
-    <!-- <div>
-      <label for="filter">Filter by Employee:</label>
-      <input v-model="filter" id="filter" placeholder="Filter timesheets by employee name" />
-    </div> -->
-    <button @click="showFilterModal = true">Filter & Sort</button>
+    <h1>All TimeSheets</h1>
+    <button class="filterSortModal" @click="showFilterSortModal = true">Filter & Sort</button>
     <TimeSheetFilterSortModal
-      :showModal="showFilterModal"
+      :showModal="showFilterSortModal"
       :filters="filters"
       :sortOptions="sortOptions"
       @applyFilters="handleApplyFilters"
-      @close="showFilterModal = false"
+      @applySorting="handleApplySorting"
+      @close="showFilterSortModal = false"
     />
+
+    <button @click="exportData">Export to Excel</button>
 
     <table>
       <thead>
@@ -37,8 +36,6 @@
         </tr>
       </tbody>
     </table>
-
-    <button @click="exportData">Export to Excel</button>
   </div>
 </template>
 
@@ -50,16 +47,9 @@ import TimeSheetFilterSortModal from '@/components/TimeSheetFilterSortModal.vue'
 
 // Vuex store for managing TimeSheets
 const store = useStore();
-// const filter = ref('');
 
-// // Use namespaced getters and actions from timeSheetsModule
-// const filteredTimeSheets = computed(() => {
-//   const filterText = filter.value.toLowerCase();
-//   return store.getters['timeSheets/timeSheets'].filter((timeSheet: any) =>
-//     timeSheet.employee.user.username.toLowerCase().includes(filterText)
-//   );
-// });
-const showFilterModal = ref(false);
+// Local state for filters, sort options, and modal visibility
+const showFilterSortModal = ref(false);
 const filters = ref<Filters>({
     employeeName: '',
     startDate: null,
@@ -125,9 +115,13 @@ const filteredAndSortedTimeSheets = computed(() => {
 
 
 const handleApplyFilters = ({ filters: newFilters, sortOptions: newSortOptions }: {filters: Filters, sortOptions:  SortOptions}) => {
+  console.log("Handling apply filters");
   filters.value = newFilters;
+};
+
+const handleApplySorting = ({ sortOptions: newSortOptions }: {sortOptions: SortOptions}) => {
+  console.log("Handling apply sorting");
   sortOptions.value = newSortOptions;
-  showFilterModal.value = false;
 };
 
 const exportData = () => {
@@ -136,33 +130,16 @@ const exportData = () => {
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+h1 {
+  background-color: #3573b7;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 16px 0;
 }
-
-thead {
-  background-color: #f0f0f0;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-th {
-  background-color: #333;
-  color: white;
-}
-
-tr:hover {
-  background-color: #f1f1f1;
-  color: #333
-}
-
 button {
-  margin-top: 20px;
+  float: right;
+  margin-bottom: 16px;
+  margin-top: 32px;
+  margin-left: 16px;
 }
 </style>

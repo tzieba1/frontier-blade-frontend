@@ -1,15 +1,22 @@
 <template>
   <tr>
+    <td class="table-data-heading">{{ getTimeSheetCategory(fieldKey) }}</td>
     <td class="table-data-heading"><span :title="fieldLabel">{{ fieldLabel }}</span></td>
 
     <!-- Data Columns for Each Entry -->
     <td v-for="(entry, index) in entries" :key="index" class="table-data-field">
-      <!-- Display value when not editing -->
-      <template v-if="!isEditing"><span :title="displayValue(entry)">{{ displayValue(entry) }}</span></template>
+      <!-- Display value when not editing or field is disabled -->
+      <template v-if="!isEditing || disabled">
+        <span :title="displayValue(entry)">{{ displayValue(entry) }}</span>
+      </template>
 
-      <!-- Editable field when editing -->
+      <!-- Editable field when editing and not disabled -->
       <template v-else>
         <div class="input-container">
+          <!-- Placeholder text for empty fields that are not text-based -->
+          <span class="placeholder-text" 
+                v-if="getNestedFieldValue(entry, fieldKey) instanceof Date || typeof getNestedFieldValue(entry, fieldKey) === 'number' || fieldKey === 'additionalQualifiers.dayOrNight'">{{ placeholder }}</span>
+
           <!-- Date Input -->
           <input v-if="getNestedFieldValue(entry, fieldKey) instanceof Date" type="date"
             :value="getNestedFieldValue(entry, fieldKey)"
@@ -17,20 +24,31 @@
 
           <!-- Numeric Input -->
           <input v-else-if="typeof getNestedFieldValue(entry, fieldKey) === 'number'" type="number"
-            :value="getNestedFieldValue(entry, fieldKey)"
+            :value="getNestedFieldValue(entry, fieldKey)" min="0" step="0.01"
             @input="(event) => updateFieldValue(index, parseFloat((event.target as HTMLInputElement).value))" />
 
-          <!-- Text Input -->
-          <input v-else type="text" :value="getNestedFieldValue(entry, fieldKey)"
+          <!-- Day/Night Dropdown -->
+          <select v-else-if="fieldKey === 'additionalQualifiers.dayOrNight'"
+            :value="getNestedFieldValue(entry, fieldKey)"
+            @change="(event) => updateFieldValue(index, (event.target as HTMLSelectElement).value)">
+            <option value="Day">Day</option>
+            <option value="Night">Night</option>
+          </select>
+
+          <!-- Text Input with Placeholder -->
+          <input v-else type="text" :value="getNestedFieldValue(entry, fieldKey)" :placeholder="placeholder"
             @input="(event) => updateFieldValue(index, (event.target as HTMLInputElement).value)" />
 
-          <button
-            v-if="!(getNestedFieldValue(entry, fieldKey) instanceof Date || typeof getNestedFieldValue(entry, fieldKey) === 'number')"
-            class="expand-button" @click="toggleModal" aria-label="Expand for detailed entry">
+          <!-- Expand Button for text fields only -->
+          <button v-if="!(getNestedFieldValue(entry, fieldKey) instanceof Date
+                          || typeof getNestedFieldValue(entry, fieldKey) === 'number'
+                          || fieldKey === 'additionalQualifiers.dayOrNight')" 
+                  class="expand-button" @click="toggleModal" aria-label="Expand for detailed entry">
             🔍
           </button>
         </div>
 
+        <!-- Text Entry Modal for expanded input -->
         <TextEntryModal v-if="showModal" :initialText="getNestedFieldValue(entry, fieldKey)?.toString() || ''"
           :isVisible="showModal" @update:text="(newText) => updateFieldValue(index, newText)"
           @close="showModal = false" />
@@ -56,13 +74,16 @@
 import { ref, computed, defineProps, defineEmits } from 'vue';
 import TextEntryModal from './TextEntryModal.vue';
 import { TimeSheetEntry } from '@/store/types';
+import { TimeSheetCategory } from '@/store/enums';
 
 const props = defineProps<{
   fieldLabel: string;
   entries: TimeSheetEntry[];
   fieldKey: string;
   isEditing: boolean;
+  placeholder: string;
   validationErrors: Record<string, string>;
+  disabled?: boolean;
 }>();
 
 const showModal = ref(false);
@@ -99,8 +120,21 @@ function setNestedFieldValue(obj: any, fieldKey: string, value: any) {
 
 const displayValue = (entry: TimeSheetEntry) => {
   const value = getNestedFieldValue(entry, props.fieldKey);
-  return value instanceof Date ? value.toLocaleDateString() : value;
+  return value instanceof Date ? value.toISOString().split('T')[0] : value;
 };
+
+function getTimeSheetCategory(fieldKey: string): TimeSheetCategory {
+  if (fieldKey.includes("billable")) {
+    return TimeSheetCategory.Billable;
+  }
+  if (fieldKey.includes("nonBillable")) {
+    return TimeSheetCategory.NonBillable;
+  }
+  if (fieldKey.includes("additionalQualifiers")) {
+    return TimeSheetCategory.Qualifiers;
+  }
+  return TimeSheetCategory.General;
+}
 
 const calculateTotal = computed(() => {
   const total = props.entries.reduce((acc, entry) => {
@@ -110,7 +144,7 @@ const calculateTotal = computed(() => {
 
   // Check if any entries have a numeric value for this fieldKey
   const hasNumericValues = props.entries.some(entry => typeof getNestedFieldValue(entry, props.fieldKey) === 'number');
-  
+
   return hasNumericValues ? total : '-';
 });
 
@@ -130,16 +164,17 @@ const validationError = computed(() => {
 }
 
 .table-data-field {
-  min-width:175px;
+  min-width: 175px;
   height: 1.67rem;
   text-overflow: ellipsis;
 }
 
-.table-data-field, 
+.table-data-field,
 .error {
   white-space: nowrap;
   overflow: scroll;
-  max-width: 175px; /* Adjust as needed for current cell layout */
+  max-width: 175px;
+  /* Adjust as needed for current cell layout */
 }
 
 .error span {
@@ -147,28 +182,19 @@ const validationError = computed(() => {
   margin: auto;
 }
 
-table tr:last-child td:first-child {
-    border-bottom-left-radius: 8px;
-}
-    
-table tr:last-child td:last-child {
-    border-bottom-right-radius: 8px;
-}
-td {
-  border: 1px solid #666;
-  padding: 8px;
-  text-align: left;
-}
 .totals-column {
   text-align: center;
   font-weight: bold;
   background-color: #c1c1c1;
   color: #333;
 }
+
 .input-container {
   display: flex;
   align-items: center;
+  width: 100%;
 }
+
 .expand-button {
   padding: 0;
   margin-left: 8px;
@@ -178,10 +204,23 @@ td {
   color: #007bff;
   font-size: 1.2em;
 }
+
 .error {
   color: #bf0e0e;
   font-size: 0.9em;
   text-align: center;
   overflow: scroll;
+}
+
+.placeholder-text {
+  font-weight: 700;
+  font-size: 0.67em;
+  pointer-events: none;
+  margin-right: 8px;
+  text-align: center;
+}
+
+input {
+  width: 100%;
 }
 </style>

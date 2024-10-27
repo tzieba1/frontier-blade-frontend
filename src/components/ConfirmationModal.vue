@@ -1,9 +1,10 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
-      <textarea v-model="text" rows="10" cols="50" placeholder="Enter text here..."></textarea>
+      <h3>{{ title }}</h3>
+      <p>{{ description }}</p>
       <div class="button-container">
-        <button @click="confirmText">Confirm</button>
+        <button @click="confirmAction">Confirm</button>
         <button @click="closeModal">Cancel</button>
       </div>
     </div>
@@ -11,22 +12,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
-  initialText: String,
-  isVisible: Boolean
+  title: {
+    type: String,
+    default: 'Confirm'
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  isVisible: {
+    type: Boolean,
+    required: true
+  }
 });
 
-const emits = defineEmits(['update:text', 'close']);
-const text = ref(props.initialText);
+const emits = defineEmits(['confirm', 'close']);
 
-watch(() => props.initialText, (newText) => {
-  text.value = newText;
-});
-
-const confirmText = () => {
-  emits('update:text', text.value);
+const confirmAction = () => {
+  emits('confirm');
   emits('close');
 };
 
@@ -48,9 +54,22 @@ const closeModal = () => {
   justify-content: center;
 }
 .modal-content {
-  background: white;
+  background: #c1c1c1;
+  color: #333;
   padding: 20px;
   border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+}
+h3 {
+  margin: 0;
+  text-align: left;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+p {
+  margin: 15px 0;
+  text-align: left;
 }
 .button-container {
   display: flex;
@@ -59,5 +78,11 @@ const closeModal = () => {
 }
 .button-container button {
   margin-left: 8px;
+  background: #3573b7;
+  border: 1px solid transparent;
+}
+
+.button-container button:hover {
+  background: #333
 }
 </style>

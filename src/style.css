@@ -42,27 +42,80 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid #1a1a1a; /* Match initial background color */
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color 0.25s, box-shadow 0.25s; /* Smooth transition */
 }
 
 button:hover {
-  border-color: #3573b7;
+  background-color: #333; /* Darken background on hover */
+  box-shadow: 0 0 0 1px #c1c1c1; /* Light outline for hover effect */
 }
 
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Larger focus ring */
+  outline: none; /* Remove native outline */
 }
 
 br {
   border-color: #666;
+}
+
+table {
+  margin: auto;
+  width: 100%;
+  border-spacing: 0;
+  border-color: #c1c1c1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table th {
+  text-align: left;
+  padding: 8px;
+  border: 1px solid #333;
+  border-top-color: #3573b7;
+  border-bottom-color: #3573b7;
+  background-color: #3573b7;
+}
+
+table th:first-child {
+  border-left-color: #3573b7;
+  border-top-left-radius: 8px;
+}
+
+table th:last-child {
+  border-right-color: #3573b7;
+  border-top-right-radius: 8px;
+}
+
+table tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+  
+table tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+th {
+  background-color: #333;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+  color: #333
+}
+
+td {
+  border: 1px solid #666;
+  padding: 8px;
+  text-align: left;
 }
 
 .card {

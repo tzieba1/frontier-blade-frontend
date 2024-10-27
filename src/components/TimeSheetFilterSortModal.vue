@@ -1,7 +1,11 @@
 <template>
-  <div v-if="showModal" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Filter & Sort Options</h2>
+  <div v-if="showModal" class="modal-overlay" @click="closeModal()">
+    <div class="modal-content" @click.stop>
+      <h2>Filtering Options
+        <span>
+          <button class="filter-button" @click="applyFilters()">Filter ᗊ</button>
+        </span>
+      </h2>
 
       <!-- Filters Section -->
       <div class="filter-section">
@@ -42,6 +46,11 @@
       <hr />
 
       <!-- Sorting Section -->
+      <h2>Sorting Options
+        <span>
+          <button class="sort-button" @click="applySorting()">Sort 🗂️</button>
+        </span>
+      </h2>
       <div class="sort-section">
         <div class="sort-group">
           <label for="sortField">Sort by:</label>
@@ -62,15 +71,18 @@
         </div>
       </div>
 
+      <hr />
       <!-- Modal Buttons -->
       <div class="button-container">
-        <button @click="apply">Apply</button>
-        <button @click="resetFiltersAndSorting">Reset</button>
-        <button @click="$emit('close')">Cancel</button>
+        <a href="#" @click.prevent="resetFilters()">Reset Filters</a>
+        <a href="#" @click.prevent="resetSorting()">Reset Sorting</a>
+        <button class="cancel-button" @click="closeModal()">Cancel ↩️</button>
       </div>
     </div>
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 import { Filters, SortOptions } from '@/components/types';
@@ -82,7 +94,7 @@ const props = defineProps<{
   sortOptions: SortOptions;
 }>();
 
-const emit = defineEmits(['applyFilters', 'close']);
+const emit = defineEmits(['applyFilters',  'close']);
 
 const localFilters = ref({ ...props.filters });
 const localSortOptions = ref({ ...props.sortOptions });
@@ -97,16 +109,7 @@ watch(
   (newSortOptions) => (localSortOptions.value = { ...newSortOptions })
 );
 
-const apply = () => {
-  emit('applyFilters', {
-    filters: localFilters.value,
-    sortOptions: localSortOptions.value,
-  });
-  emit('close');
-};
-
-// Reset filters and sorting to initial state
-const resetFiltersAndSorting = () => {
+const resetFilters = () => {
   localFilters.value = {
     employeeName: '',
     startDate: null,
@@ -114,10 +117,30 @@ const resetFiltersAndSorting = () => {
     approvalStatus: '',
     hasComments: '',
   };
+};
+
+const resetSorting = () => {
   localSortOptions.value = {
     field: 'employee.user.username',
     direction: 'asc',
   };
+};
+
+const applyFilters = () => {
+  emit('applyFilters', {
+    filters: localFilters.value,
+  });
+};
+
+const applySorting = () => {
+  emit('applyFilters', {
+    sortOptions: localSortOptions.value,
+  });
+};
+
+const closeModal = () => {
+  emit('close');
+  console.log("Emitting close event");
 };
 </script>
 
@@ -163,10 +186,28 @@ const resetFiltersAndSorting = () => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  align-items: center;
+}
+label {
+  text-align: left;
 }
 hr {
   border: 0;
   border-top: 1px solid #333;
   margin: 20px 0;
+}
+h2 {
+  margin: 0;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.filter-button,
+.sort-button, 
+.cancel-button {
+  font-size: 1rem;
+  padding: 8px;
+  margin: 8px;
 }
 </style>

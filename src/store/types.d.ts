@@ -1,3 +1,5 @@
+import { ApprovalStatus, DayOrNight } from "./enums";
+
 export interface RootState {
   auth: AuthState;
   timeSheets: TimeSheetsState;
@@ -34,8 +36,9 @@ export interface Approval {
   id: number;
   timeSheetId: number;
   approver: User;
-  isApproved: boolean;
-  approvalDate: Date;
+  status: ApprovalStatus;
+  comments: string;
+  timeStamp: Date;
 }
 
 export interface TimeSheet {
@@ -84,7 +87,7 @@ export interface NonBillableFields {
 export interface AdditionalQualifierFields {
   [key: string]: any; 
   perDiem: number;
-  dayOrNight: number;
+  dayOrNight: DayOrNight;
 }
 
 export interface TimeSheetTotals {

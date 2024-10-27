@@ -22,9 +22,6 @@ export const timeSheetsModule: Module<TimeSheetsState, RootState> = {
     exportTimeSheetsToExcel(_, timeSheets: TimeSheet[]) {
       // Implement logic for exporting timeSheets to Excel
       console.log('Exporting:', timeSheets);
-    },
-    updateTimeSheet({ commit }, updatedTimeSheet: TimeSheet) {
-      commit('updateTimeSheet', updatedTimeSheet);
     }
   },
   mutations: {
@@ -34,11 +31,22 @@ export const timeSheetsModule: Module<TimeSheetsState, RootState> = {
         ...timeSheet
       });
     },
-    updateTimeSheet(state, updatedTimeSheet: TimeSheet) {
+    updateTimeSheet(state, updatedTimeSheet) {
       const index = state.timeSheets.findIndex(ts => ts.id === updatedTimeSheet.id);
       if (index !== -1) {
-        state.timeSheets.splice(index, 1, updatedTimeSheet);
+        state.timeSheets.splice(index, 1, {
+          ...state.timeSheets[index],
+          ...updatedTimeSheet,
+          approvals: [...updatedTimeSheet.approvals] // Ensure approvals is updated fully
+        });
       }
-    }
+    },
+    submitTimeSheet(state, timeSheet: TimeSheet) {
+      state.timeSheets.push(timeSheet);
+    },
+    exportTimeSheetsToExcel(_, timeSheets: TimeSheet[]) {
+      // Implement logic for exporting timeSheets to Excel
+      console.log('Exporting:', timeSheets);
+    },
   }
 };
