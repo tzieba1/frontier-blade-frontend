@@ -68,12 +68,12 @@
         </div>
         <div class="button-container">
           <a href="#" @click.prevent="resetSorting()">Reset Sorting</a>
-          <button class="sort-button" @click="applySorting()">Sort 🗂️</button>
+          <button class="sort-button" @click="applySorting()">Sort ↓</button>
         </div>
       </div>
 
       <hr />
-      <button class="cancel-button" @click="closeModal()">Cancel ↩️</button>
+      <button class="cancel-button" @click="closeModal()">Cancel ✕</button>
     </div>
   </div>
 </template>
