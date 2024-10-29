@@ -1,8 +1,3 @@
-export enum DayOrNight {
-  Day = "Day",
-  Night = "Night",
-}
-
 export enum TimeSheetCategory {
   General = "General",
   Billable = "Billable",
@@ -13,5 +8,5 @@ export enum TimeSheetCategory {
 export enum ApprovalStatus {
   Pending = "Pending",
   Approved = "Approved",
-  Rejected = "Rejected",
+  Rejected = "Rejected"
 }

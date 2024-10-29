@@ -1,177 +1,66 @@
 <template>
   <div>
     <h1>TimeSheet Details</h1>
-    <h2>{{ timeSheet.employee.user.firstName }} {{ timeSheet.employee.user.lastName }} (Employee #{{
-      timeSheet.employee.number }})
-      <!-- Edit button to toggle edit mode, shown only if conditions are met -->
-      <button v-if="showEditButton" class="edit-button" @click="toggleEditMode">
-        {{ isEditing ? "Save 💾" : "Edit ✏️" }}
-      </button>
+    <h2 class="employee-heading">
+      <span>{{ timeSheet.employee.user.firstName }} {{ timeSheet.employee.user.lastName }}</span>
+      <span class="employee-number">(ID #{{ timeSheet.employee.number }})</span>
     </h2>
 
-    <hr />
+    <div class="container">
+      <!-- Using Card component with header, default content, and footer slots -->
+      <Card>
+        <template #header>
+          <div>Summary </div>
+        </template>
 
-    <div class="timesheet-details-container">
-      <!-- General Fields Group -->
-      <div class="general-fields-group">
-        <h3>General</h3>
-        <hr/>
-        <p><strong>Week Of: </strong>
-          <span v-if="isEditing && isAdmin">
-            <input type="date" v-model="weekOfString" />
-          </span>
-          <span v-else>{{ weekOfString }}</span>
-        </p>
-
-        <p><strong>Comments: </strong>
-          <span v-if="isEditing && isAdmin">
-            <input type="text" v-model="editedTimeSheet.comments" placeholder="Add comments" />
-          </span>
-          <span v-else>{{ timeSheet.comments }}</span>
-        </p>
-
-        <p><strong>Approval Status: </strong>
-          <span v-if="isEditing && isAdmin">
-            <select v-model="approvalStatus">
+        <div class="card-content">
+          <!-- Week of Dropdown -->
+          <p><strong>Week Of:</strong>
+            <select v-model="selectedMonday">
+              <option v-for="monday in mondaysOfYear" :key="monday" :value="monday">
+                {{ monday }}
+              </option>
+            </select>
+          </p>
+          <p><strong>Comments:</strong>
+            <textarea v-if="isEditing && (isAdmin || isSupervisor)" v-model="editedTimeSheet.comments" />
+            <p v-else>{{ timeSheet.comments }}</p>
+          </p>
+          <p><strong>Approval Status:</strong>
+            <select v-model="approvalStatus" v-if="isEditing && (isAdmin || isSupervisor)">
               <option value="Pending">Pending</option>
               <option value="Approved">Approved</option>
-              <option value="Denied">Denied</option>
+              <option value="Rejected">Rejected</option>
             </select>
-          </span>
-          <span v-else>{{ approvalStatus }}</span>
-        </p>
-      </div>
+            <p v-else>{{ approvalStatus }}</p>
+          </p>
+        </div>
 
-      <!-- CCQ Fields Group for Admin -->
-      <div v-if="isAdmin" class="ccq-fields-group">
-        <h3>CCQ</h3>
-        <hr/>
-        <p><strong>Is Ropes: </strong>
-          <input type="checkbox" v-model="editedTimeSheet.ccq.isRopes" :disabled="!isEditing" />
-        </p>
-        <p><strong>Is Diver: </strong>
-          <input type="checkbox" v-model="editedTimeSheet.ccq.isDiver" :disabled="!isEditing" />
-        </p>
-        <p><strong>Rate: </strong>
-          <select v-model="editedTimeSheet.ccq.rate" :disabled="!isEditing">
-            <option value="hourly">Hourly</option>
-            <option value="salary">Salary</option>
-          </select>
-        </p>
+        <template v-if="isAdmin || isEmployee || isSupervisor" #footer>
+          <button v-if="isAdmin || isSupervisor" @click="toggleEditMode">
+            {{ isEditing ? "Save 💾" : "Edit ✏️" }}
+          </button>
+
+          <button @click="openConfirmModal"
+              :disabled="approvalStatus === ApprovalStatus.Approved"
+              v-if="isEmployee">
+              {{ approvalStatus === ApprovalStatus.Approved ? "Submitted" :
+              "Submit ✉️"}}
+            </button>
+        </template>
+      </Card>
+
+      <div v-for="day in daysOfWeek" :key="day.getDay()" class="timesheet-entry">
+        <TimeSheetEntryCard v-if="weekEntries[day.toISOString().split('T')[0]]"
+          :entry="weekEntries[day.toISOString().split('T')[0]]" 
+          :approvalStatus="approvalStatus"
+        />
+        <button class="add-entry-btn" v-else @click="addPlaceholderEntry(day)">
+          ➕ {{day.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}}
+        </button>
       </div>
     </div>
 
-
-    <!-- Transposed Table Structure for TimeSheet Entries with Totals Column -->
-    <table class="timesheet-table">
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Field</th>
-          <th v-for="(entry, index) in editedTimeSheet.entries" :key="entry.id">
-            <div class="table-heading-flex">
-              <span>{{ getDayName(index) }}</span>
-              <!-- Add button in the last entry column header -->
-              <span v-if="index === editedTimeSheet.entries.length - 1 && isEditing" class="button-wrapper">
-                <button class="add-button" @click="addEntry">
-                  Add +
-                </button>
-              </span>
-            </div>
-          </th>
-          <th>Totals</th>
-          <th>Validation</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Date Row -->
-        <TimeSheetRow fieldLabel="Date" :placeholder="'Date'" :disabled="true" :fieldKey="'date'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'date', payload.updatedEntry)" />
-
-        <!-- Work Order Row -->
-        <TimeSheetRow fieldLabel="Work Order" :placeholder="'Work Order'" :fieldKey="'workOrder'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'workOrder', payload.updatedEntry)" />
-
-        <!-- Customer Name Row -->
-        <TimeSheetRow fieldLabel="Customer Name" :placeholder="'Customer Name'" :fieldKey="'customerName'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'customerName', payload.updatedEntry)" />
-
-        <!-- Shop Comments Row -->
-        <TimeSheetRow fieldLabel="Shop Comments" :placeholder="'Shop Comments'" :fieldKey="'shopComments'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'shopComments', payload.updatedEntry)" />
-
-        <!-- Suggested Sales Part -->
-        <TimeSheetRow fieldLabel="Suggested Sales Part" :placeholder="'Suggested Sales Part'"
-          :fieldKey="'suggestedSalesPart'" :entries="editedTimeSheet.entries" :isEditing="isEditing"
-          :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'suggestedSalesPart', payload.updatedEntry)" />
-
-        <!-- Non-Billable Rate 2 ST Row -->
-        <TimeSheetRow fieldLabel="Rate 2 ST" :placeholder="'Non-Billable Rate 2 ST'" :fieldKey="'nonBillable.rate2ST'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'nonBillable.rate2ST', payload.updatedEntry)" />
-
-        <!-- Non-Billable Rate 2 OT Row -->
-        <TimeSheetRow fieldLabel="Rate 2 OT" :placeholder="'Non-Billable Rate 2 OT'" :fieldKey="'nonBillable.rate2OT'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'nonBillable.rate2OT', payload.updatedEntry)" />
-
-        <!-- Non-Billable Comments Row -->
-        <TimeSheetRow fieldLabel="Comments" :placeholder="'Non-Billable Comments'" :fieldKey="'nonBillable.comments'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'nonBillable.comments', payload.updatedEntry)" />
-
-        <!-- Billable Rate 1 ST Row -->
-        <TimeSheetRow fieldLabel="Rate 1 ST" :placeholder="'Billable Rate 1 ST'" :fieldKey="'billable.rate1ST'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.rate1ST', payload.updatedEntry)" />
-
-        <!-- Billable Rate 1 OT Row -->
-        <TimeSheetRow fieldLabel="Rate 1 OT" :placeholder="'Billable Rate 1 OT'" :fieldKey="'billable.rate1OT'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.rate1OT', payload.updatedEntry)" />
-
-        <!-- Billable Rate 2 ST Row -->
-        <TimeSheetRow fieldLabel="Rate 2 ST" :placeholder="'Billable Rate 2 ST'" :fieldKey="'billable.rate2ST'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.rate2ST', payload.updatedEntry)" />
-
-        <!-- Billable Rate 2 OT Row -->
-        <TimeSheetRow fieldLabel="Rate 2 OT" :placeholder="'Billable Rate 2 OT'" :fieldKey="'billable.rate2OT'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.rate2OT', payload.updatedEntry)" />
-
-        <!-- Billable Vacation Row -->
-        <TimeSheetRow fieldLabel="Vacation" :placeholder="'Billable Vacation'" :fieldKey="'billable.vacation'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.vacation', payload.updatedEntry)" />
-
-        <!-- Billable Sick Row -->
-        <TimeSheetRow fieldLabel="Sick" :placeholder="'Billable Sick'" :fieldKey="'billable.sick'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.sick', payload.updatedEntry)" />
-
-        <!-- Billable Holiday Row -->
-        <TimeSheetRow fieldLabel="Holiday" :placeholder="'Billable Holiday'" :fieldKey="'billable.holiday'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'billable.holiday', payload.updatedEntry)" />
-
-        <!-- Additional Qualifiers Per Diem Row -->
-        <TimeSheetRow fieldLabel="Per Diem" :placeholder="'AQ Per Diem'" :fieldKey="'additionalQualifiers.perDiem'"
-          :entries="editedTimeSheet.entries" :isEditing="isEditing" :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'additionalQualifiers.perDiem', payload.updatedEntry)" />
-
-        <!-- Additional Qualifiers Day or Night Row -->
-        <TimeSheetRow fieldLabel="Day or Night" :placeholder="'AQ Day/Night'"
-          :fieldKey="'additionalQualifiers.dayOrNight'" :entries="editedTimeSheet.entries" :isEditing="isEditing"
-          :validationErrors="validationErrors"
-          @update="(payload) => updateEntry(payload.index, 'additionalQualifiers.dayOrNight', payload.updatedEntry)" />
-      </tbody>
-    </table>
 
     <div class="footer-buttons-container">
       <router-link to="/timesheets" v-slot="{ href, navigate, isActive, isExactActive }">
@@ -179,11 +68,10 @@
           Back to TimeSheets
         </a>
       </router-link>
-      <button class="submit-button" @click="openConfirmModal" v-if="!isEditing && !isAdmin && !isAccountant">Submit
-        ✉️</button>
     </div>
   </div>
 
+  <!-- Text Entry Modal -->
   <TextEntryModal v-if="isModalVisible" :initialText="modalText" :isVisible="isModalVisible" @update:text="updateField"
     @close="closeModal" />
 
@@ -198,17 +86,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref, watch } from 'vue';
+import { computed, onUnmounted, Ref, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import TextEntryModal from '@/components/TextEntryModal.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import TimeSheetRow from '@/components/TimeSheetRow.vue';
-import { DayOrNight } from '@/store/enums';
+// import TimeSheetRow from '@/components/TimeSheetRow.vue';
+import Card from '@/components/Card.vue';
 import AlertModal from '@/components/AlertModal.vue';
+import TimeSheetEntryCard from '@/components/TimeSheetEntryCard.vue';
+import { TimeSheetEntry } from '@/store/types';
+import { ApprovalStatus } from '@/store/enums';
 
 const showAlertModal = ref(false);  // Track alert modal visibility
 const validationErrorsList: Ref<string[]> = ref([]);  // List of validation errors for modal
+const isSmallScreen = ref(false);
 
 const store = useStore();
 const route = useRoute();
@@ -219,23 +111,103 @@ const timeSheet = computed(() => {
   return store.getters['timeSheets/timeSheetById'](timeSheetId);
 });
 
-// Fetch the user's role from the store
-const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
-const isAccountant = computed(() => store.getters['auth/role'] === 'accountant');
+const updateScreenSize = () => {
+  isSmallScreen.value = window.innerWidth < 500; // Adjust the width as needed
+};
 
-// Show the edit button based on user role and timesheet status
-const showEditButton = computed(() => {
-  if (isAdmin.value) {
-    // Always show the edit button for admins
-    return true;
-  }
-  // Non-admin conditions: timesheet must be in "Pending" state and not already in edit mode
-  return approvalStatus.value === 'Pending';
+onUnmounted(() => {
+  window.removeEventListener('resize', updateScreenSize);
 });
 
-const validationErrors = ref<Record<string, string>>({});
+// Generate Mondays in UTC for the current year
+const getMondaysOfCurrentYear = () => {
+  const year = new Date().getUTCFullYear();
+  const mondays = [];
+  let date = new Date(Date.UTC(year, 0, 1));
+
+  // Move to the first Monday in UTC
+  date.setUTCDate(date.getUTCDate() + ((1 - date.getUTCDay() + 7) % 7));
+
+  // Collect all Mondays of the year in UTC format
+  while (date.getUTCFullYear() === year) {
+    mondays.push(date.toISOString().split('T')[0]); // Store dates as 'YYYY-MM-DD' in UTC
+    date.setUTCDate(date.getUTCDate() + 7);
+  }
+
+  // Find the Monday of the current week
+  const today = new Date();
+  const todayDay = today.getUTCDay();
+  const currentWeekMonday = new Date(today);
+  currentWeekMonday.setUTCDate(today.getUTCDate() - todayDay + (todayDay === 0 ? -6 : 1)); // Adjust to Monday in UTC
+
+  // Format current week Monday in 'YYYY-MM-DD' format
+  const formattedCurrentMonday = currentWeekMonday.toISOString().split('T')[0];
+
+  // Set the selectedMonday to the Monday of the current week, if it exists in the year's Mondays
+  selectedMonday.value = mondays.includes(formattedCurrentMonday) ? formattedCurrentMonday : mondays[0];
+
+  return mondays;
+};
+
+const selectedMonday = ref<string | null>(new Date().toISOString().split('T')[0]); // Initialize as null to ensure it waits for mondaysOfYear
+const mondaysOfYear = computed(() => getMondaysOfCurrentYear());
+
+// Adjust daysOfWeek to use the selectedMonday as the start date in local time
+const daysOfWeek = computed(() => {
+  if (!selectedMonday.value) return [];
+  const start = new Date(selectedMonday.value);
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(start);
+    day.setDate(day.getDate() + i); // Correctly handle day increments in local time
+    return day;
+  });
+});
+
+const addPlaceholderEntry = (day: Date) => {
+  console.log(`Add entry for ${day.toUTCString().split('T')[0]}`);
+  // Future functionality for adding an entry on this day
+  const newEntry = {
+    id: timeSheet.value.entries.length + 1,
+    timeSheetId: timeSheet.value.id,
+    date: day,
+    customerName: '',
+    comments: '',
+    rates: { onSite: 0, standby: 0 },
+    perDiem: false,
+    holiday: false,
+  }
+  timeSheet.value.entries.push(newEntry);
+
+  // Use a Vuex mutation to add the entry
+  store.commit('timeSheets/addTimeSheetEntry', { timeSheetId: timeSheet.value.id, entry: newEntry });
+};
+
+// Filter entries by selected week in UTC
+const weekEntries = computed(() => {
+  const entries = timeSheet.value.entries;
+  const weekEntriesMap: Record<string, TimeSheetEntry> = {}; // Use Record type for string keys and TimeSheetEntry values
+
+  daysOfWeek.value.forEach(day => {
+    const entry = entries.find((entry: TimeSheetEntry) =>
+      entry.date.toISOString().split('T')[0] === day.toISOString().split('T')[0]
+    );
+    if (entry) {
+      weekEntriesMap[day.toISOString().split('T')[0]] = entry;
+    }
+  });
+
+  return weekEntriesMap;
+});
+
+// Fetch the user's role from the store
+const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
+const isSupervisor = computed(() => store.getters['auth/role'] === 'supervisor');
+const isEmployee = computed(() => store.getters['auth/role'] === 'employee');
+
+// Edit mode and edited timesheet with validation
 const isEditing = ref(false);
 const editedTimeSheet = ref({ ...timeSheet.value });
+const validationErrors = ref<Record<string, string>>({});
 
 // Modal State
 const isModalVisible = ref(false);
@@ -246,16 +218,6 @@ const showConfirmModal = ref(false);
 
 // Add the logic for date calculations
 const startOfWeek = ref(getStartOfWeek(timeSheet.value.weekOf || new Date()));
-const weekOfString = computed({
-  get() {
-    return editedTimeSheet.value.weekOf
-      ? new Date(editedTimeSheet.value.weekOf).toISOString().split('T')[0] // Format as 'YYYY-MM-DD'
-      : '';
-  },
-  set(value) {
-    editedTimeSheet.value.weekOf = new Date(value); // Convert back to Date object
-  }
-});
 
 // Validation function
 const validateEntries = () => {
@@ -279,26 +241,6 @@ const validateEntries = () => {
 
   return Object.keys(validationErrors.value).length === 0; // Return true if no errors
 };
-
-const updateEntry = (index: number, fieldKey: string, updatedEntry: any) => {
-  const newEntry = { ...editedTimeSheet.value.entries[index] };
-  setNestedFieldValue(newEntry, fieldKey, getNestedFieldValue(updatedEntry, fieldKey));
-  editedTimeSheet.value.entries[index] = newEntry;
-};
-
-// Helper to set a nested field value by string key path
-function setNestedFieldValue(obj: any, fieldKey: string, value: any) {
-  const keys = fieldKey.split('.');
-  const lastKey = keys.pop();
-  let nested = obj;
-  keys.forEach((key) => (nested = nested[key]));
-  if (lastKey) nested[lastKey] = value;
-}
-
-// Helper to get nested field values
-function getNestedFieldValue(entry: any, fieldKey: string): any {
-  return fieldKey.split('.').reduce((obj, key) => obj?.[key], entry);
-}
 
 const toggleEditMode = () => {
   isEditing.value = !isEditing.value;
@@ -329,6 +271,7 @@ const closeModal = () => {
   isModalVisible.value = false;
 };
 
+// Save changes to the timesheet entry
 const saveChanges = () => {
   if (validateEntries()) {
     store.commit('timeSheets/updateTimeSheet', editedTimeSheet.value);
@@ -354,23 +297,6 @@ const saveChanges = () => {
   }
 };
 
-const addEntry = () => {
-  const newEntry = {
-    id: editedTimeSheet.value.entries.length + 1,
-    timeSheetId: timeSheet.value.id,
-    date: new Date(),
-    workOrder: '',
-    customerName: '',
-    shopComments: '',
-    suggestedSalesPart: '',
-    nonBillable: { rate2ST: 0, rate2OT: 0, comments: '' },
-    billable: { rate1ST: 0, rate1OT: 0, rate2ST: 0, rate2OT: 0, vacation: 0, sick: 0, holiday: 0 },
-    additionalQualifiers: { perDiem: 0, dayOrNight: DayOrNight.Day }
-  };
-  editedTimeSheet.value.entries.push(newEntry);
-};
-
-
 // Utility function to calculate the Monday of the current week
 function getStartOfWeek(date: Date) {
   const day = date.getDay();
@@ -378,13 +304,7 @@ function getStartOfWeek(date: Date) {
   return new Date(date.setDate(diff));
 }
 
-// Method to get the name of the day by index
-const getDayName = (index: number) => {
-  const day = new Date(startOfWeek.value);
-  day.setDate(startOfWeek.value.getDate() + index);
-  return day.toLocaleDateString("en-US", { weekday: "long" });
-};
-
+// Approval status computed property
 const approvalStatus = computed({
   get() {
     const approvals = editedTimeSheet.value.approvals;
@@ -411,36 +331,50 @@ h1 {
   border-radius: 16px;
   padding: 14px;
   margin: 16px 0;
+  font-size: 36px;
 }
 
 h2 {
-  text-align: left;
   display: flex;
   justify-content: space-between;
+}
+
+.card-content p {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-entry-btn {
+  padding: 32px;
+  width: 100%;
+  background-color: #e2e2e2;
+  color: #333;
+  border-radius: 16px;
+  border: 4px dashed #333;
+  font-size: 1.2rem;
+}
+
+.add-entry-btn:hover {
+  background-color: #d1d1d1;
+  cursor: pointer;
+}
+
+.employee-heading {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
-h3 {
-  margin: 0;
-  text-align: left;
-}
-
-.table-heading-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.edit-button,
-.add-button,
-.submit-button {
-  font-size: 1rem;
-  padding: 8px;
-  margin: 8px;
-}
-
-.add-button {
-  margin: 0;
+.employee-number {
+  font-style: italic;
 }
 
 .footer-buttons-container {
@@ -449,40 +383,19 @@ h3 {
   align-items: center;
   margin-top: 16px;
 }
-.timesheet-details-container {
+
+.container {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 16px; /* Optional spacing below the container */
+  flex-direction: column;
+  gap: 32px;
+  background-color: #e2e2e2;
+  border-radius: 8px;
+  padding: 24px;
 }
 
-.general-fields-group,
-.ccq-fields-group {
-  width: 48%; /* Occupies equal width with space in between */
-  border: 1px solid #ccc;
-  border-radius: 16px;
-  padding: 16px;
-  margin: 8px;
-}
-
-.general-fields-group p,
-.ccq-fields-group p {
-  display: flex;
-  justify-content: space-between;
-  width: 100%; /* Ensures full width usage within each group */
-}
-
-.general-fields-group p strong,
-.ccq-fields-group p strong {
-  margin-right: auto; /* Pushes label to the far left */
-}
-
-.general-fields-group p span,
-.general-fields-group p input,
-.general-fields-group p select,
-.ccq-fields-group p span,
-.ccq-fields-group p input,
-.ccq-fields-group p select {
-  margin-left: auto; /* Pushes input or text to the far right */
+textarea {
+  resize: vertical; 
+  width: 100%; /* Ensures it fills the container without overflowing */
 }
 
 </style>

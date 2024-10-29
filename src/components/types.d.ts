@@ -1,3 +1,9 @@
+import { DefineComponent } from 'vue';
+
+export interface ContentBlock {
+  label: string;
+  template: DefineComponent;
+}
 
 export interface Filters {
   employeeName: string;

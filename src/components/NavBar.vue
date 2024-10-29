@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 // Access Vuex store and router
 const store = useStore();
 const router = useRouter();
+
+// State for navigation visibility
+const showNav = ref(true);
 
 // Computed values for auth state and user role
 const role = computed(() => store.getters['auth/role']);
@@ -16,22 +19,37 @@ const logout = () => {
   store.commit('auth/logout');
   router.push('/');
 };
+
+const login = () => {
+  router.push('/');
+};
+
+// Toggle navigation visibility
+const toggleNav = () => {
+  showNav.value = !showNav.value;
+};
 </script>
 
 <template>
   <nav>
-    <ul>
+    <button @click="toggleNav" class="toggle-btn">
+      <span>{{ !showNav ? "Menu ▶" : "Menu ◀️" }}</span>
+    </button>
+    <ul v-if="showNav">
       <li>
-        <img src="/fbs.png" alt="Company Logo" height="100px" />
+        <img src="/fbs.png" alt="Company Logo" height="64px" />
       </li>
-      <li v-if="isAuthenticated && (role === 'admin' || role === 'accountant')">
+      <li v-if="isAuthenticated && (role === 'admin' || role === 'accountant' || role === 'supervisor')">
         <router-link to="/dashboard">Dashboard</router-link>
       </li>
-      <li v-if="isAuthenticated && (role === 'admin' || role === 'employee')">
+      <li v-if="isAuthenticated && (role === 'admin' || role === 'employee' || role === 'supervisor')">
         <router-link to="/timesheets">TimeSheets</router-link>
       </li>
       <li v-if="isAuthenticated">
         <button @click="logout">Logout</button>
+      </li>
+      <li v-else>
+        <button @click="login">Login</button>
       </li>
     </ul>
   </nav>
@@ -39,8 +57,14 @@ const logout = () => {
 
 <style scoped>
 nav {
+  z-index: 1000;
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   background-color: #c1c1c1;
-  padding: 10px;
   border-radius: 8px;
 }
 
@@ -51,16 +75,13 @@ img {
 
 nav ul {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   list-style-type: none;
-  padding: 0;
+  padding: 16px;
   margin: 0;
-}
-
-li {
-  margin-right: 20px;
+  gap: 16px;
 }
 
 nav ul li a,
@@ -76,8 +97,6 @@ nav ul li button {
   transition: background-color 0.3s ease;
   font-size: 16px;
   line-height: 1.2;
-  height: 40px;
-  box-sizing: border-box;
 }
 
 nav ul li a:hover,
@@ -85,12 +104,14 @@ nav ul li button:hover {
   background-color: #777;
   cursor: pointer;
 }
-
-button {
-  border: none;
+.toggle-btn {
   background: none;
-  color: inherit;
-  font: inherit;
+  border: none;
+  margin: 4px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1em;
+  padding: 2px;
+  color: #3573b7;
 }
-
 </style>

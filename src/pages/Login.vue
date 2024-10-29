@@ -39,7 +39,7 @@ const handleLogin = async () => {
     store.commit('auth/login', { role: user.role, user: user });
 
     // Next, navigate to the appropriate route
-    if (user.role === 'admin' || user.role === 'accountant') {
+    if (user.role === 'admin' || user.role === 'accountant' || user.role === 'supervisor') {
       router.push('/dashboard');
     } else if (user.role === 'employee') {
       router.push('/timesheets');
@@ -53,5 +53,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Add some basic styling */
+button {
+  margin-top: 16px;
+}
 </style>

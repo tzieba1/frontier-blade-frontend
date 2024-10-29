@@ -5,6 +5,7 @@ export const mockApprovals = [
   {
     id: 1,
     timeSheetId: 0,
+    entries: [],
     status: ApprovalStatus.Approved,
     approver: mockUsers[0],
     comments: `Approved by ${mockUsers[0].firstName + ' ' + mockUsers[0].lastName}.`,
@@ -13,6 +14,7 @@ export const mockApprovals = [
   {
     id: 2,
     timeSheetId: 0,
+    entries: [],
     status: ApprovalStatus.Rejected,
     approver: mockUsers[0],
     comments: `Rejected by ${mockUsers[0].firstName + ' ' + mockUsers[0].lastName}.`,
@@ -21,6 +23,7 @@ export const mockApprovals = [
   {
     id: 3,
     timeSheetId: 0,
+    entries: [],
     status: ApprovalStatus.Pending,
     approver: mockUsers[0],
     comments: `Changes made by employee. Last rejected by ${mockUsers[0].firstName + ' ' + mockUsers[0].lastName}.`,

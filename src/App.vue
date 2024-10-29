@@ -3,13 +3,14 @@ import NavBar from './components/NavBar.vue';
 </script>
 
 <template>
-  <div>
     <NavBar />
-    <!-- Route Content -->
-    <router-view />
-  </div>
+    <div class="route-content">
+      <router-view />
+    </div>
 </template>
 
 <style scoped>
-/* Add any global styles if needed */
+  .route-content {
+    width: 100%;
+  }
 </style>

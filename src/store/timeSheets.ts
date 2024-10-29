@@ -1,6 +1,6 @@
 // store/timeSheets.ts
 import { Module } from 'vuex';
-import { RootState } from './types';
+import { RootState, TimeSheetEntry } from './types';
 import { TimeSheetsState, TimeSheet } from './types';
 import { mockTimeSheets } from '@/mocks/timeSheets';
 
@@ -31,6 +31,12 @@ export const timeSheetsModule: Module<TimeSheetsState, RootState> = {
         ...timeSheet
       });
     },
+    addTimeSheetEntry(state, { timeSheetId, entry }) {
+      const timesheet = state.timeSheets.find(ts => ts.id === timeSheetId);
+      if (timesheet) {
+        timesheet.entries.push(entry);
+      }
+    },
     updateTimeSheet(state, updatedTimeSheet) {
       const index = state.timeSheets.findIndex(ts => ts.id === updatedTimeSheet.id);
       if (index !== -1) {
@@ -48,5 +54,14 @@ export const timeSheetsModule: Module<TimeSheetsState, RootState> = {
       // Implement logic for exporting timeSheets to Excel
       console.log('Exporting:', timeSheets);
     },
+    updateTimeSheetEntry(state, updatedEntry: TimeSheetEntry) {
+      const timeSheet = state.timeSheets.find(ts => ts.id === updatedEntry.timeSheetId);
+      if (timeSheet) {
+        const entryIndex = timeSheet.entries.findIndex(e => e.id === updatedEntry.id);
+        if (entryIndex !== -1) {
+          timeSheet.entries.splice(entryIndex, 1, updatedEntry);
+        }
+      }
+    }
   }
 };

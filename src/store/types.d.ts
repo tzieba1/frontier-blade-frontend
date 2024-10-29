@@ -1,4 +1,4 @@
-import { ApprovalStatus, DayOrNight } from "./enums";
+import { ApprovalStatus } from "./enums";
 
 export interface RootState {
   auth: AuthState;
@@ -28,14 +28,12 @@ export interface UsersState {
 export interface User {
   id: number;
   email: string;
-  username: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "accountant" | "employee" | "none";
+  role: "admin" | "accountant" | "employee" | "supervisor";
 }
 
 export interface Team {
-  [key: string]: any;
   id: number;
   name: string;
   members: Employee[];
@@ -50,6 +48,7 @@ export interface Employee {
 
 export interface Approval {
   id: number;
+  entries: TimeSheetEntry[];
   timeSheetId: number;
   approver: User;
   status: ApprovalStatus;
@@ -58,66 +57,24 @@ export interface Approval {
 }
 
 export interface TimeSheet {
-  [key: string]: any; 
   id: number;
   approvals: Approval[];
   employee: Employee;
-  weekOf: Date;
-  comments: string;
   entries: TimeSheetEntry[];
-  totals: TimeSheetTotals;
-  ccq: CCQ;
 }
 
 export interface TimeSheetEntry {
-  [key: string]: any; 
   id: number;
   timeSheetId: number;
   date: Date;
-  workOrder: string;
   customerName: string;
-  shopComments: string;
-  suggestedSalesPart: string;
-  nonBillable: NonBillableFields;
-  billable: BillableFields;
-  additionalQualifiers: AdditionalQualifierFields;
+  comments: string;
+  rates: Rates;
+  perDiem: boolean;
+  holiday: boolean;
 }
 
-export interface BillableFields {
-  [key: string]: any; 
-  rate1ST: number;
-  rate1OT: number;
-  rate2ST: number;
-  rate2OT: number;
-  vacation: number;
-  sick: number;
-  holiday: number;
-}
-
-export interface NonBillableFields {
-  [key: string]: any; 
-  rate2ST: number;
-  rate2OT: number;
-  comments?: string; // Optional because it may not be used in totals
-}
-
-export interface AdditionalQualifierFields {
-  [key: string]: any; 
-  perDiem: number;
-  dayOrNight: DayOrNight;
-}
-
-export interface CCQ {
-  [key: string]: any; 
-  id: number;
-  isDiver: boolean;
-  isRopes: boolean;
-  rate: "hourly" | "salary";
-}
-
-export interface TimeSheetTotals {
-  [key: string]: any; 
-  nonBillable: NonBillableFields; 
-  billable: BillableFields; 
-  additionalQualifiers: AdditionalQualifierFields;
+export interface Rates {
+  onSite: number;
+  standby: number;
 }
